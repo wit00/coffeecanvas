@@ -1,0 +1,58 @@
+CoffeeShop is an open-source graphics API for the creation of complex inter-
+active HTML5 canvas animations. CoffeeShop is written in CoffeeScript, a program-
+ming language that compiles into JavaScript. CoffeeScript utilizes a simple syntax
+and built-in programming shortcuts to make writing JavaScript applications easier.
+CoffeeShop’s feature list includes: predefined graphics elements, a built-in scene graph
+structure, image-drawing optimization, ActionScript-like tween classes, bounding-box
+and pixel-by-pixel collision detection, and collision response.
+
+Installation and Use
+In order to make your own CoffeeShop program, you will need to install CoffeeScript and the CoffeeShop source code. CoffeeShop applications can be created on any operating system that supports the CoffeeScript compiler. At the time of writing all major operating sytems support the CoffeeShop compiler. Compiled code will run in any modern browser that handles HTML5.”
+
+Installing CoffeeScript
+The easiest way to install CoffeeScript is to use the node package manager
+from Node.js. Instructions for installing Node.js can be found at http://nodejs.org/download/.
+Instructions for other methods of installing CoffeeScript can be found at http:
+//coffeescript.org/#installation.
+
+Installing CoffeeShop
+Download the CoffeeShop source code from https://github.com/wit00/coffeeshop.
+The source files can be placed in any directory.
+
+Running the Program
+Completed CoffeeShop programs consist of an HTML file and a JavaScript
+file compiled from your CoffeeShop code. In order to run your completed program,
+you will need to use the CoffeeScript compiler to compile your CoffeeShop code into
+JavaScript. To do this, you will need to run the compile.sh script in the top level of
+your downloded CoffeeShop code. You will also need the name of the directory in
+which your edited CoffeeScript file is located. The CoffeeShop source code includes a
+main directory for this purpose. You would edit your main.coffee file and then run
+the program with 
+./compile.sh ./main/
+
+Compiling the Code for a CoffeeShop Application
+CoffeeShop also includes a sample programs directory with precompiled sample
+programs. You can recompile these programs with this command if you are in the top level CoffeeShop directory:
+./compile.sh ./sample_programs/pong/
+
+Then, to finish, open the included graphics.html file in the browser of your
+choice. If you would rather compile the code from a terminal window, or if you plan
+to use a Python Script, Make, or other program, you will need this command to call the CoffeeShop compiler:
+coffee -j $DIR/project.js -c ./coffeeshoplib.coffee $DIR/*.coffee
+
+This command will compile the CoffeeShop source code into a JavaScript file
+called project.js
+
+Reading the Documentation
+The CoffeeShop source code downloaded from github includes documentation
+as a set of html files in its docs directory. To read the documentation, load the
+index.html file in the source code’s docs directory into a web browser. This file
+provides links to an html file for each class in the code. The individual html files were
+created using the docco CoffeeScript documentation program.
+
+Editing the Source Code
+The CoffeeShop source code is contained in the src directory. If you change
+the source code, the coffeeshoplib.coffee file will need to be recompiled. To recompile
+this file, run the concatlib.sh script. If you have added files to the the CoffeeShop
+source code, you might need to alter this script.
+

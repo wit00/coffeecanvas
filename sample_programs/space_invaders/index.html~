@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <meta charset="UTF-8">
+  <head>
+    <title>Space Invaders</title>
+  </head>
+  <body>
+    <h1>Space Invaders Style Game</h1>
+    <div id="hidden" style="visibility:hidden; width:1px; height:1px; overflow:hidden">
+      <!--Bitmap Images-->
+    </div>
+    <div style="position: relative;">
+      <p>In this game, the triangle is a "gun" and the moving squares are "enemies".<br>
+      The object of the game is to destroy the enemies so they do not reach the bottom of the canvas.<br>
+      The up-arrow key shoots the "gun", and the left and right arrow keys move it along the bottom of the screen.</p>
+      <canvas id="myCanvas" width="400" height="400" style="border:1px solid #c3c3c3;">
+      Your browser does not support the canvas element.
+      </canvas>
+      <script type="text/javascript" src="project.js"></script> 
+    </div>
+      <h2>CoffeeShop Code</h2>
+      <img src="./spaceinvaders1.png" alt="some_text"> 
+      <img src="./spaceinvaders2.png" alt="some_text"> 
+  </body>
+</html>
+
+

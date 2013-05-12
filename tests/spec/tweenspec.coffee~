@@ -1,0 +1,41 @@
+describe 'Tween', ->
+  tween = null
+  beforeEach ->
+    canvas = document.createElement('canvas')
+    canvas.width = 10
+    canvas.height = 10
+    canvas.id = "myCanvas"
+    document.body.appendChild(canvas)
+    tween = new Tween()
+  describe 'Constructor', ->
+    it 'Tween is defined', ->
+      expect(tween).toBeDefined()
+    it 'attribute is defined and default is x',->
+      expect(tween.attribute).toBeDefined()
+      expect(tween.attribute).toBe('x')
+    it 'easeClass is defined and default is None.easeNone',->
+      expect(tween.easeClass).toBeDefined()
+      expect(tween.easeClass).toBe(None.easeNone)
+    it 'from is defined and default is 0',->
+      expect(tween.from).toBeDefined()
+      expect(tween.from).toBe(0)
+    it 'to is defined and default is 100',->
+      expect(tween.to).toBeDefined()
+      expect(tween.to).toBe(100)
+    it 'duration is defined and default is 2000 milleseconds',->
+      expect(tween.duration).toBeDefined()
+      expect(tween.duration).toBe(2000)
+    it 'yoyo is defined and default is false',->
+      expect(tween.yoyo).toBeDefined()
+      expect(tween.yoyo).toBe(false)
+    it 'elapsed is defined and default is 0',->
+      expect(tween.elapsed).toBeDefined()
+      expect(tween.elapsed).toBe(0)
+    it 'stop is defined and default is tween.duration',->
+      expect(tween.stop).toBeDefined()
+      expect(tween.stop).toBe(tween.duration)
+  describe 'Ease Function', ->
+    it 'If tween.elapsed is greater than tween.stop, the tween returns delete.',->
+      testTween = new Tween(stop:10)
+      expect(testTween.ease(20)).toBe('delete')
+      

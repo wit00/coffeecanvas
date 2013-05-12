@@ -1,0 +1,315 @@
+#Sprite is the parent class for all of the graphical primitives. 
+#Sprite contains an array of sub-sprites, an array of events to perform, an array of received events, 
+#and a transformation matrix. Each sprite has standard properties: color,x,y,rotationVelocity,velocity,otherVelocity, 
+#alpha,fill,and stroke. 
+#Sprites can translate, scale, rotate and skew. 
+#Sprites can also addChildren, draw, and update as well as parse, receive, and run events.
+class Sprite
+  constructor: (args={}) ->
+    @x = args.x ? 0
+    @y = args.y ? 0
+    @angularVelocity = args.angularVelocity ? 0
+    @velocity = args.velocity ? 0.5
+    @otherVelocity = args.otherVelocity ? 0.3
+    @alpha = args.alpha ? 1.0
+    @rotation = args.rotation ? 0
+    @verticalScale = 1
+    @horizontalScale = 1
+    @horizontalSkew = 0
+    @verticalSkew = 0
+    @width = args.width ? 0
+    @subSprites = []
+    #Possible values for lineCap are "butt", "round", and "square". 
+    #The default value is "butt" here and in HTML5.
+    @lineCap = args.lineCap ? "butt"
+    @lineWidth = args.lineWidth ? 1
+    @lineJoin = args.lineJoin ? "miter"
+    @miterLimit = args.miterLimit ? 10
+    @events = []
+    @receivedEvents = {}
+    @matrix = new Matrix
+    @toDeleteEvents = []
+    @boxwidth = 0
+    @animations = []
+    @collisionEvents = []
+    @lastTime = new Date()
+    @thisTime = new Date()
+    @time = 1
+    @xVelocity = args.xVelocity ? 0
+    @yVelocity = args.yVelocity ? 0
+    @adjustedX = @x
+    @adjustedY = @y
+    @delta = {x:@adjustedX,y:@adjustedY,hScale:@hScale,vScale:@vScale,hSkew:@hSkew,vSkew:@vSkew,rotation:0}
+    @collideTime = 0
+
+  setTime: ()->
+    @thisTime = new Date()
+    @time = @thisTime.getTime() - @lastTime.getTime()
+    @lastTime = @thisTime
+
+  colorTween:(tween)->
+    if @fill.length is 15
+      red = @fill.substr(5,1)
+    if @fill.length is 16
+      red = @fill.substr(5,2)
+    if @fill.length is 17
+      red = @fill.substr(5,3)
+    newColor = parseInt(red) + 1
+    @changeProperty(fill:'rgba('+newColor.toString()+',0,255,1)')
+
+  tween: (tween)->
+    change = tween.ease(@time)
+    if change is "delete"
+      @toDeleteEvents.push(tween)
+    
+    else
+      switch tween.attribute
+        when "x" 
+          delt = @x - change
+          @x = change
+          @adjustedX = change#@adjustedX + delt #fix me
+        when "y"
+          delt = @y - change
+          @y = change
+          @adjustedY = change#@adjustedY + delt #fix me
+        when "rotation"
+          #@matrix.rotation = change
+          @rotation = change
+        when "alpha"
+          @alpha = change
+        else attribute = @x#should be an error?
+          
+  #translate, scale, rotate, and skew, change elements of the sprites matrix to change the overall transformation.
+  translate: (vx,vy)->
+    vector = Vector.add(@x,@y,vx,vy)
+    @x = vector.x
+    @y = vector.y
+    adjVector = Vector.add(@adjustedX,@adjustedY,vx,vy)
+    @adjustedX = adjVector.x
+    @adjustedY = adjVector.y
+  move:(vx,vy)->
+    @x = @x + vx*@time
+    @y = @y + vy*@time
+    @adjustedX = @adjustedX + vx*@time
+    @adjustedY = @adjustedY + vy*@time
+  moveTo:(x,y)->
+    deltaX = @x - x
+    deltaY = @y - y
+    @x = x
+    @adjustedX = x
+    @y = y
+    @adjustedY = y
+  #for the thesis only#
+  oldScale:(x,y)->
+    @matrix.xScale = @matrix.xScale + x*(2/4)
+    @matrix.yScale = @matrix.yScale + y*(3/4)
+  scale:(x,y)  ->
+    if @radius
+      if x != y
+        max = Math.max(x,y)
+        @radius = @radius*max
+        @width = @width*max
+        @height = @height*max
+        @matrix.xScale = @matrix.xScale*(x/max)
+        @matrix.yScale = @matrix.yScale*(y/max)
+      else 
+        @radius = @radius*x
+        @width = @width*x
+        @height = @height*x
+    else
+      @width = @width*x
+      @height = @height*y
+    @centerPoint = {x:-@width/2-@lineWidth/2,y:-@height/2-@lineWidth/2}    
+    @buildDrawingCanvas()
+    @createStamp(@stampContext)
+    for sprite in @subSprites
+      sprite.x = sprite.x*x
+      sprite.y = sprite.y*y
+      sprite.adjustedX = sprite.adjustedX*x
+      sprite.adjustedY = sprite.adjustedY*y
+      sprite.scale(x,y)
+  rotate:(rotation)  ->
+    @rotation = @rotation + rotation#*@angularVelocity
+    for sprite in @subSprites
+      sprite.rotate(rotation)
+  skew:(x,y) ->
+    @matrix.xSkew = @matrix.xSkew + x#*@otherVelocity
+    @matrix.ySkew = @matrix.ySkew + y#*@otherVelocity
+    for sprite in @subSprites
+      sprite.skew(x,y)
+  draw:(context)=>
+    #console.log "drawing"
+    #for sprite in @subSprites
+    #  sprite.draw(context)
+  #runDrawing let's me split up the draw function of the graphical primitives and
+  #make their code cleaner. There might be a better way to do this.
+  runDrawing:(context)=>
+    @setupCanvas(context)
+    @draw(context)
+    @drawSubSprites(context)
+    @restoreCanvas(context)
+   
+  runDrawing2:(context)=>
+    @setupCanvas2(context)
+    @draw(context)
+    @drawSubSprites(context)
+    @restoreCanvas(context)  
+   
+  update: ->
+    @delta.x = @adjustedX
+    @delta.y = @adjustedY
+    @delta.rotation = @rotation
+    @setTime()
+    #x(t) = x(0)+v(0)*t + 1/2*a*t^2
+    @x = @x + @xVelocity*@time# + 0.5*@xAcceleration*time*time
+    @y = @y + @yVelocity*@time
+    @adjustedX = @adjustedX + @xVelocity*@time
+    @adjustedY = @adjustedY + @yVelocity*@time
+    @rotation = @rotation + @angularVelocity*@time
+    @rotation = 0.1 if @rotation > 6.28
+    #@delta.x = @adjustedX
+    #@delta.y = @adjustedY
+    @runEvents()
+    for sprite in @subSprites
+      sprite.update() if sprite
+  addChild: (sprite) =>
+    @subSprites.push(sprite) 
+  #Here is the event code, in addEvent, parseEvent, runEvents, and receiveEvent. 
+  #First, sprites only respond to events that they have subscribed to, such as "keyDown" and "keyUp" events.
+  #addEvent is called by the sceneDirector and adds an event, the code (so far only keycodes) and the function
+  #attached to those events.
+  
+
+  deleteAnimation: (event) ->
+    index = @animations.indexOf(event)
+    @animations.splice(event,1)
+  
+  deleteEvent: (event) ->
+    index = @events.indexOf(event)
+    @events.splice(event,1)
+  #When the sprite updates, it runs all of its received events, if any.
+  
+  run:(event)->
+    if typeof event is "function"
+      event()
+    else
+      if event instanceof Tween
+        @tween(event)
+      if event instanceof ColorTween
+        @colorTween(event)
+  
+  runEvents: ->
+    for animation in @animations
+      @run(animation)
+    for event in @events
+      if @receivedEvents[event.code] is true
+        @run(event.toDo)
+      if event in @collisionEvents
+        
+        @run(event.toDo)
+    @collisionEvents.length = 0
+    if @toDeleteEvents.length > 0   
+      for event in @toDeleteEvents
+        @deleteAnimation(event)
+      @toDeleteEvents.length = 0
+
+  #The KeyManager calls receive event when it catches an event. 
+  #This function parses the event, checks if it is the correct type, adds it to the received events if it is true, 
+  #such as when the key is down, and deletes it when false, such as when the key is up.
+  #The receiveEvent function probably needs work, but I want to add more event types first and see what issues come up.
+  
+  receiveCollisionEvent: (objectHit) ->
+    for myEvent in @events
+      if myEvent.objectType is "boundary" 
+          if objectHit is "boundary"
+            @collisionEvents.push(myEvent)
+      else if myEvent.type is collisions
+        if myEvent.objectType is "all" 
+          @collisionEvents.push(myEvent)
+        else if objectHit instanceof myEvent.objectType
+          @collisionEvents.push(myEvent)
+          
+  receiveEvent: (e) ->
+    for myEvent in @events
+      if myEvent.code is e.keyCode 
+        if myEvent.action is e.type
+          @receivedEvents[e.keyCode] = true
+        else
+          delete @receivedEvents[e.keyCode]
+            
+  addAnimation:(toDo)->
+    @animations.push(toDo)
+  
+  addEvent:(args={})->
+    type = args.type #throw exception?
+    toDo = args.toDo
+    type.observe @
+    if type instanceof CollisionManager
+      objectType = args.objectType ? 'all'
+      type.addTypeToTest(@,objectType)
+      if args.detail is true
+        type.turnOnDetail()  #generate points detail turned on if detail arg is true
+      newEvent = 
+        type: type
+        objectType: objectType
+        toDo: toDo
+      @events.push(newEvent)
+    if type instanceof KeyManager
+      newEvent = 
+        type: args.type
+        action: args.action
+        code: args.code 
+        toDo: args.toDo
+      @events.push(newEvent)  
+
+      
+        
+  #setupCanvas(context), drawSubSprites(context), and restoreCanvas(context) are drawing functions 
+  #needed by every sprite when it draws itself. Those functions are here and inherited by the graphical primitives 
+  #in order to clean up the code.
+  setupCanvas2: (context) ->
+    context.save()
+    @matrix.makeTransformationMatrix()
+    #In this API, sprites rotate around their center points. 
+    #To do this, before drawing the sprite, move the canvas so the sprite is in the center.
+    context.translate(@adjustedX,@adjustedY)
+    #context.translate(@x,@y)
+    context.rotate(@rotation)
+    #context.rotate(@rotation) #temp
+    #context.transform(@matrix.a,@matrix.b,@matrix.c,@matrix.d,@matrix.e,@matrix.f)
+    context.globalAlpha = context.globalAlpha*@alpha
+  setupCanvas: (context) ->
+    context.save()
+    @matrix.makeTransformationMatrix()
+    #In this API, sprites rotate around their center points. 
+    #To do this, before drawing the sprite, move the canvas so the sprite is in the center.
+    #context.translate(@adjustedX,@adjustedY)
+    context.translate(@x,@y)
+    context.rotate(@rotation)
+    #context.rotate(@rotation) #temp
+    context.transform(@matrix.a,@matrix.b,@matrix.c,@matrix.d,@matrix.e,@matrix.f)
+    context.globalAlpha = context.globalAlpha*@alpha
+  drawSubSprites: (context) ->
+    for sprite in @subSprites
+      sprite.runDrawing(context)
+      
+  restoreCanvas: (context) ->
+    context.restore()
+    context.globalAlpha = 1.0
+    
+  buildDrawingCanvas:()->
+    @canvas2 = document.createElement('canvas')
+    @canvas2.width = @width + @lineWidth
+    @canvas2.height = @height + @lineWidth
+    @stampContext = @canvas2.getContext('2d')
+    @createStamp(@stampContext)
+    
+   
+  changeProperty:(args={})->
+    for own key,value of args
+      @[key] = value
+    @createStamp(@stampContext)
+
+    
+
+    

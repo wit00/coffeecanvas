@@ -1,0 +1,208 @@
+<!DOCTYPE html>  <html> <head>   <title>collisions.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="collisionResponse.html">                 collisionResponse.coffee               </a>                                           <a class="source" href="collisions.html">                 collisions.coffee               </a>                                           <a class="source" href="gameloop.html">                 gameloop.coffee               </a>                                           <a class="source" href="keys.html">                 keys.coffee               </a>                                           <a class="source" href="scene.html">                 scene.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               collisions.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>                            </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">CollisionManager</span>
+  <span class="nv">constructor: </span><span class="nf">(scene) -&gt;</span>
+    <span class="vi">@checkCollision = </span><span class="p">[]</span>
+    <span class="vi">@collided = </span><span class="p">[]</span>
+    <span class="vi">@typesToTest = </span><span class="p">{}</span>
+    <span class="vi">@scene = </span><span class="nx">scene</span>
+    
+  <span class="nv">onUpdate: </span><span class="nf">(event) -&gt;</span>
+    <span class="k">for</span> <span class="nx">sprite</span> <span class="k">in</span> <span class="nx">@checkCollision</span> 
+      <span class="nx">@runCollisionDetection</span><span class="p">(</span><span class="nx">sprite</span><span class="p">)</span>
+    <span class="k">for</span> <span class="nx">sprite</span> <span class="k">in</span> <span class="nx">@collided</span>
+      <span class="nv">from = </span><span class="nx">sprite</span><span class="p">.</span><span class="nx">o1</span>
+      <span class="nv">collisionEvent = </span><span class="p">{</span><span class="nx">type</span><span class="o">:</span><span class="s2">&quot;collision&quot;</span><span class="p">,</span><span class="nx">keyCode</span><span class="o">:</span><span class="nx">sprite</span><span class="p">.</span><span class="nx">o2</span><span class="p">}</span>
+      <span class="nx">from</span><span class="p">.</span><span class="nx">receiveCollisionEvent</span><span class="p">(</span><span class="nx">sprite</span><span class="p">.</span><span class="nx">o2</span><span class="p">)</span>
+    <span class="vi">@collided = </span><span class="p">[]</span>
+    
+  <span class="nv">observe: </span><span class="nf">(sprite) -&gt;</span>
+    <span class="nx">@checkCollision</span><span class="p">.</span><span class="nx">push</span> <span class="nx">sprite</span> <span class="k">if</span> <span class="nx">sprite</span> <span class="o">not</span> <span class="k">in</span> <span class="nx">@checkCollision</span>
+  
+  <span class="nx">unObserve</span><span class="o">:</span><span class="nf">(sprite)-&gt;</span>
+    <span class="nv">index = </span><span class="nx">@checkCollision</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">sprite</span><span class="p">)</span>
+    <span class="nx">@checkCollision</span><span class="p">.</span><span class="nx">splice</span><span class="p">(</span><span class="nx">index</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>    
+   
+  <span class="nv">addTypeToTest: </span><span class="nf">(sprite,type)-&gt;</span>
+    <span class="k">if</span> <span class="nx">@typesToTest</span><span class="p">.</span><span class="nx">sprite</span>
+      <span class="nx">@typesToTest</span><span class="p">.</span><span class="nx">sprite</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">type</span><span class="p">)</span> 
+    <span class="k">else</span>
+      <span class="vi">@typesToTest.sprite = </span><span class="p">[</span><span class="nx">type</span><span class="p">]</span>
+   
+  <span class="nx">pixelByPixel</span><span class="o">:</span><span class="nf">(xMax,xMin,yMax,yMin,o1,o2)-&gt;</span>
+    <span class="nv">xDiff = </span><span class="nx">xMax</span> <span class="o">-</span> <span class="nx">xMin</span>
+    <span class="nv">yDiff = </span><span class="nx">yMax</span> <span class="o">-</span> <span class="nx">yMin</span> 
+    <span class="nv">canvas = </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span> <span class="s2">&quot;myCanvas&quot;</span>
+    <span class="nv">canvas2 = </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s1">&#39;canvas&#39;</span><span class="p">)</span>
+    <span class="nv">canvas2.width = </span><span class="nx">canvas</span><span class="p">.</span><span class="nx">width</span>
+    <span class="nv">canvas2.height = </span><span class="nx">canvas</span><span class="p">.</span><span class="nx">height</span>
+    <span class="nv">tempContext = </span><span class="nx">canvas2</span><span class="p">.</span><span class="nx">getContext</span><span class="p">(</span><span class="s1">&#39;2d&#39;</span><span class="p">)</span>
+    <span class="nx">o1</span><span class="p">.</span><span class="nx">runDrawing2</span><span class="p">(</span><span class="nx">tempContext</span><span class="p">)</span>
+    <span class="nv">imgData1 = </span><span class="nx">tempContext</span><span class="p">.</span><span class="nx">getImageData</span><span class="p">(</span><span class="nx">xMin</span><span class="p">,</span><span class="nx">yMin</span><span class="p">,</span><span class="nx">xDiff</span><span class="p">,</span><span class="nx">yDiff</span><span class="p">)</span>
+    <span class="nv">pixels1 = </span><span class="nx">imgData1</span><span class="p">.</span><span class="nx">data</span>
+    <span class="nx">tempContext</span><span class="p">.</span><span class="nx">clearRect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="nx">canvas2</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span><span class="nx">canvas2</span><span class="p">.</span><span class="nx">height</span><span class="p">)</span>
+    <span class="nx">o2</span><span class="p">.</span><span class="nx">runDrawing</span><span class="p">(</span><span class="nx">tempContext</span><span class="p">)</span>
+    <span class="nv">imgData2 = </span><span class="nx">tempContext</span><span class="p">.</span><span class="nx">getImageData</span><span class="p">(</span><span class="nx">xMin</span><span class="p">,</span><span class="nx">yMin</span><span class="p">,</span><span class="nx">xDiff</span><span class="p">,</span><span class="nx">yDiff</span><span class="p">)</span>
+    <span class="nv">pixels2 = </span><span class="nx">imgData2</span><span class="p">.</span><span class="nx">data</span>
+    <span class="k">for</span> <span class="nx">pixel1</span> <span class="k">in</span> <span class="nx">pixels1</span> <span class="k">by</span> <span class="mi">3</span>
+      <span class="k">for</span> <span class="nx">pixel2</span> <span class="k">in</span> <span class="nx">pixels2</span> <span class="k">by</span> <span class="mi">3</span>
+        <span class="k">if</span> <span class="nx">pixel1</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">and</span> <span class="nx">pixel2</span> <span class="o">&gt;</span> <span class="mi">0</span>
+          <span class="k">return</span> <span class="kc">true</span>
+    <span class="k">return</span> <span class="kc">false</span>   
+    
+  <span class="nx">detectCollisions</span><span class="o">:</span><span class="nf">(o1,o2)-&gt;</span>
+    <span class="nv">side1 = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">o1</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span><span class="nx">o1</span><span class="p">.</span><span class="nx">height</span><span class="p">)</span>
+    <span class="nv">side2 = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">o2</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span><span class="nx">o2</span><span class="p">.</span><span class="nx">height</span><span class="p">)</span>
+    <span class="nv">x = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">round</span><span class="p">(</span><span class="nx">o1</span><span class="p">.</span><span class="nx">adjustedX</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="nx">o1</span><span class="p">.</span><span class="nx">lineWidth</span><span class="p">)</span>
+    <span class="nv">y = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">round</span><span class="p">(</span><span class="nx">o1</span><span class="p">.</span><span class="nx">adjustedY</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="nx">o1</span><span class="p">.</span><span class="nx">lineWidth</span><span class="p">)</span>
+    <span class="nv">x2 = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">round</span><span class="p">(</span><span class="nx">o2</span><span class="p">.</span><span class="nx">adjustedX</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="nx">o2</span><span class="p">.</span><span class="nx">lineWidth</span><span class="p">)</span>
+    <span class="nv">y2 = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">round</span><span class="p">(</span><span class="nx">o2</span><span class="p">.</span><span class="nx">adjustedY</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="nx">o2</span><span class="p">.</span><span class="nx">lineWidth</span><span class="p">)</span>
+    <span class="nx">x</span> <span class="o">-=</span> <span class="p">(</span><span class="nx">side1</span><span class="err">/2 + 0.5) &lt;&lt; 0#x -= (o1.width/2 + 0.5) &lt;&lt; 0</span>
+    <span class="nx">y</span> <span class="o">-=</span> <span class="p">(</span><span class="nx">side1</span><span class="err">/2 + 0.5) &lt;&lt; 0#y -= (o1.height/2 + 0.5) &lt;&lt; 0</span>
+    <span class="nx">x2</span> <span class="o">-=</span> <span class="p">(</span><span class="nx">side2</span><span class="err">/2 + 0.5) &lt;&lt; 0 #x2 -= (o2.width/2 + 0.5) &lt;&lt; 0</span>
+    <span class="nx">y2</span> <span class="o">-=</span> <span class="p">(</span><span class="nx">side2</span><span class="err">/2 + 0.5) &lt;&lt; 0 #y2 -= (o2.height/2 + 0.5) &lt;&lt; 0</span>
+    <span class="nv">xMin = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span><span class="nx">x2</span><span class="p">)</span>
+    <span class="nv">yMin = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">y</span><span class="p">,</span><span class="nx">y2</span><span class="p">)</span>
+    <span class="nv">xMax = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="nx">x</span><span class="o">+</span><span class="nx">o1</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span><span class="nx">x2</span><span class="o">+</span><span class="nx">o2</span><span class="p">.</span><span class="nx">width</span><span class="p">)</span>
+    <span class="nv">yMax = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="nx">y</span><span class="o">+</span><span class="nx">o1</span><span class="p">.</span><span class="nx">height</span><span class="p">,</span><span class="nx">y2</span><span class="o">+</span><span class="nx">o2</span><span class="p">.</span><span class="nx">height</span><span class="p">)</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">xMin</span> <span class="o">&gt;=</span> <span class="nx">xMax</span><span class="p">)</span> <span class="o">or</span> <span class="p">(</span><span class="nx">yMin</span> <span class="o">&gt;=</span> <span class="nx">yMax</span><span class="p">)</span>
+      <span class="k">return</span> <span class="kc">false</span>
+    <span class="k">else</span> <span class="c1">#pixel-by-pixel</span>
+      <span class="nx">@pixelByPixel</span><span class="p">(</span><span class="nx">xMax</span><span class="p">,</span><span class="nx">xMin</span><span class="p">,</span><span class="nx">yMax</span><span class="p">,</span><span class="nx">yMin</span><span class="p">,</span><span class="nx">o1</span><span class="p">,</span><span class="nx">o2</span><span class="p">)</span>
+  <span class="nx">notOnCanvas</span><span class="o">:</span><span class="nf">(sprite)-&gt;</span>
+    <span class="nv">canvasObject = </span><span class="k">new</span> <span class="nx">Rectangle</span><span class="p">(</span><span class="nx">x</span><span class="o">:</span><span class="nx">scene</span><span class="p">.</span><span class="nx">canvasWidth</span><span class="err">/2,y:scene.canvasHeight/2,width:scene.canvasWidth,height:scene.canvasHeight)  </span>
+    <span class="nv">opposite = </span><span class="nx">@detectCollisions</span><span class="p">(</span><span class="nx">sprite</span><span class="p">,</span><span class="nx">canvasObject</span><span class="p">)</span>    
+    <span class="k">return</span> <span class="kc">true</span> <span class="k">if</span> <span class="nx">opposite</span> <span class="o">is</span> <span class="kc">false</span>
+    <span class="k">return</span> <span class="kc">false</span> <span class="k">if</span> <span class="nx">opposite</span> <span class="o">is</span> <span class="kc">true</span> 
+    
+  
+    
+ 
+  <span class="nx">detectAtTime</span><span class="o">:</span><span class="nf">(xDiff,yDiff,xMin,yMin,o1,o2,moment)-&gt;</span>
+    <span class="nv">canvas = </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span> <span class="s2">&quot;myCanvas&quot;</span>
+    <span class="nv">w = </span><span class="nx">xDiff</span> <span class="o">-</span> <span class="nx">xMin</span>
+    <span class="nv">h = </span><span class="nx">yDiff</span> <span class="o">-</span> <span class="nx">yMin</span>
+    <span class="nv">tempCanvas = </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span> <span class="s2">&quot;canvas&quot;</span>
+    <span class="nv">tempCanvas.width = </span><span class="mi">500</span><span class="c1">#canvas.width</span>
+    <span class="nv">tempCanvas.height = </span><span class="mi">500</span><span class="c1">#canvas.height </span>
+    <span class="nv">tempContext = </span><span class="nx">tempCanvas</span><span class="p">.</span><span class="nx">getContext</span> <span class="s2">&quot;2d&quot;</span>
+    <span class="nx">tempContext</span><span class="p">.</span><span class="nx">save</span><span class="p">()</span>
+    <span class="nx">o1</span><span class="p">.</span><span class="nx">setupCanvas</span><span class="p">(</span><span class="nx">tempContext</span><span class="p">)</span>
+    <span class="nx">tempContext</span><span class="p">.</span><span class="nx">translate</span><span class="p">((</span><span class="nx">o1</span><span class="p">.</span><span class="nx">adjustedX</span><span class="o">-</span><span class="nx">o1</span><span class="p">.</span><span class="nx">delta</span><span class="p">.</span><span class="nx">x</span><span class="p">)</span><span class="o">*</span><span class="nx">moment</span><span class="p">,(</span><span class="nx">o1</span><span class="p">.</span><span class="nx">adjustedY</span><span class="o">-</span><span class="nx">o1</span><span class="p">.</span><span class="nx">delta</span><span class="p">.</span><span class="nx">y</span><span class="p">)</span><span class="o">*</span><span class="nx">moment</span><span class="p">)</span> 
+    <span class="nx">tempContext</span><span class="p">.</span><span class="nx">rotate</span><span class="p">((</span><span class="nx">o1</span><span class="p">.</span><span class="nx">rotation</span><span class="o">-</span><span class="nx">o1</span><span class="p">.</span><span class="nx">delta</span><span class="p">.</span><span class="nx">rotation</span><span class="p">)</span><span class="o">*</span><span class="nx">moment</span><span class="p">)</span>
+    <span class="nx">o1</span><span class="p">.</span><span class="nx">draw</span><span class="p">(</span><span class="nx">tempContext</span><span class="p">)</span>
+    <span class="nv">imgData1 = </span><span class="nx">tempContext</span><span class="p">.</span><span class="nx">getImageData</span><span class="p">(</span><span class="nx">xMin</span><span class="p">,</span><span class="nx">yMin</span><span class="p">,</span><span class="nx">xDiff</span><span class="p">,</span><span class="nx">yDiff</span><span class="p">)</span>
+    <span class="nv">pixels1 = </span><span class="nx">imgData1</span><span class="p">.</span><span class="nx">data</span>
+    <span class="nx">tempContext</span><span class="p">.</span><span class="nx">restore</span><span class="p">()</span>
+    <span class="nx">tempContext</span><span class="p">.</span><span class="nx">clearRect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">500</span><span class="p">,</span><span class="mi">500</span><span class="p">)</span>
+    <span class="nx">o2</span><span class="p">.</span><span class="nx">setupCanvas</span><span class="p">(</span><span class="nx">tempContext</span><span class="p">)</span>
+    <span class="nx">tempContext</span><span class="p">.</span><span class="nx">rotate</span><span class="p">((</span><span class="nx">o1</span><span class="p">.</span><span class="nx">rotation</span><span class="o">-</span><span class="nx">o1</span><span class="p">.</span><span class="nx">delta</span><span class="p">.</span><span class="nx">rotation</span><span class="p">)</span><span class="o">*</span><span class="nx">moment</span><span class="p">)</span>
+    <span class="nx">tempContext</span><span class="p">.</span><span class="nx">translate</span><span class="p">((</span><span class="nx">o2</span><span class="p">.</span><span class="nx">adjustedX</span><span class="o">-</span><span class="nx">o2</span><span class="p">.</span><span class="nx">delta</span><span class="p">.</span><span class="nx">x</span><span class="p">)</span><span class="o">*</span><span class="nx">moment</span><span class="p">,(</span><span class="nx">o2</span><span class="p">.</span><span class="nx">adjustedY</span><span class="o">-</span><span class="nx">o2</span><span class="p">.</span><span class="nx">delta</span><span class="p">.</span><span class="nx">y</span><span class="p">)</span><span class="o">*</span><span class="nx">moment</span><span class="p">)</span>
+    <span class="nx">o2</span><span class="p">.</span><span class="nx">draw</span><span class="p">(</span><span class="nx">tempContext</span><span class="p">)</span>
+    <span class="nv">imgData2 = </span><span class="nx">tempContext</span><span class="p">.</span><span class="nx">getImageData</span><span class="p">(</span><span class="nx">xMin</span><span class="p">,</span><span class="nx">yMin</span><span class="p">,</span><span class="nx">xDiff</span><span class="p">,</span><span class="nx">yDiff</span><span class="p">)</span>
+    <span class="nv">pixels2 = </span><span class="nx">imgData2</span><span class="p">.</span><span class="nx">data</span>
+    <span class="k">return</span> <span class="p">{</span><span class="nx">pixels1</span><span class="o">:</span><span class="nx">pixels1</span><span class="p">,</span><span class="nx">pixels2</span><span class="o">:</span><span class="nx">pixels2</span><span class="p">}</span>
+    
+    
+  <span class="nx">collidesAtTime</span><span class="o">:</span><span class="nf">(xDiff,yDiff,xMin,yMin,o1,o2,moment)-&gt;</span>
+    <span class="nv">pixels = </span><span class="nx">@detectAtTime</span><span class="p">(</span><span class="nx">xDiff</span><span class="p">,</span><span class="nx">yDiff</span><span class="p">,</span><span class="nx">xMin</span><span class="p">,</span><span class="nx">yMin</span><span class="p">,</span><span class="nx">o1</span><span class="p">,</span><span class="nx">o2</span><span class="p">,</span><span class="nx">moment</span><span class="p">)</span>
+    <span class="k">for</span> <span class="nx">pixel1</span> <span class="k">in</span> <span class="nx">pixels</span><span class="p">.</span><span class="nx">pixels1</span> <span class="k">by</span> <span class="mi">3</span>
+      <span class="k">for</span> <span class="nx">pixel2</span> <span class="k">in</span> <span class="nx">pixels</span><span class="p">.</span><span class="nx">pixels2</span> <span class="k">by</span> <span class="mi">3</span>
+        <span class="k">if</span> <span class="nx">pixel1</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">and</span> <span class="nx">pixel2</span> <span class="o">&gt;</span> <span class="mi">0</span>
+          <span class="k">return</span> <span class="kc">true</span>
+    <span class="k">return</span> <span class="kc">false</span>   
+    
+  <span class="nx">makePointsList</span><span class="o">:</span><span class="nf">(xDiff,yDiff,xMin,yMin,o1,o2,moment)-&gt;</span>
+    <span class="nv">list = </span><span class="p">[]</span>
+    <span class="nv">pixels = </span><span class="nx">@detectAtTime</span><span class="p">(</span><span class="nx">xDiff</span><span class="p">,</span><span class="nx">yDiff</span><span class="p">,</span><span class="nx">xMin</span><span class="p">,</span><span class="nx">yMin</span><span class="p">,</span><span class="nx">o1</span><span class="p">,</span><span class="nx">o2</span><span class="p">,</span><span class="nx">moment</span><span class="p">)</span>
+    <span class="nv">x = </span><span class="mi">0</span>
+    <span class="nv">y = </span><span class="mi">0</span>
+    <span class="k">for</span> <span class="nx">pixel1</span> <span class="k">in</span> <span class="nx">pixels</span><span class="p">.</span><span class="nx">pixels1</span> <span class="k">by</span> <span class="mi">3</span>
+      <span class="k">for</span> <span class="nx">pixel2</span> <span class="k">in</span> <span class="nx">pixels</span><span class="p">.</span><span class="nx">pixels2</span> <span class="k">by</span> <span class="mi">3</span>
+        <span class="k">if</span> <span class="nx">x</span> <span class="o">&gt;=</span> <span class="nx">xDiff</span> 
+          <span class="nv">x = </span><span class="mi">0</span>
+          <span class="nv">y = </span><span class="nx">y</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">else</span>
+          <span class="nv">x = </span><span class="nx">x</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="nx">pixel1</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">and</span> <span class="nx">pixel2</span> <span class="o">&gt;</span> <span class="mi">0</span>
+          <span class="nx">list</span><span class="p">.</span><span class="nx">push</span> <span class="p">([</span><span class="nx">x</span><span class="o">+</span><span class="nx">xMin</span><span class="p">,</span><span class="nx">y</span><span class="o">+</span><span class="nx">yMin</span><span class="p">])</span>
+          <span class="k">if</span> <span class="nx">list</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">10</span>
+            <span class="k">return</span> <span class="nx">list</span>
+  
+  <span class="nx">drawAtCollide</span><span class="o">:</span><span class="nf">(o,time)-&gt;</span>
+    <span class="nv">o.rotation = </span><span class="nx">o</span><span class="p">.</span><span class="nx">rotation</span> <span class="o">-</span> <span class="p">((</span><span class="nx">o</span><span class="p">.</span><span class="nx">rotation</span><span class="o">-</span><span class="nx">o</span><span class="p">.</span><span class="nx">delta</span><span class="p">.</span><span class="nx">rotation</span><span class="p">)</span><span class="o">*</span><span class="nx">time</span><span class="p">)</span>
+    <span class="nv">o.x = </span><span class="nx">o</span><span class="p">.</span><span class="nx">x</span> <span class="o">-</span> <span class="p">((</span><span class="nx">o</span><span class="p">.</span><span class="nx">x</span><span class="o">-</span><span class="nx">o</span><span class="p">.</span><span class="nx">delta</span><span class="p">.</span><span class="nx">x</span><span class="p">)</span><span class="o">*</span><span class="nx">time</span><span class="p">)</span>
+    <span class="nv">o.y = </span><span class="nx">o</span><span class="p">.</span><span class="nx">y</span> <span class="o">-</span> <span class="p">((</span><span class="nx">o</span><span class="p">.</span><span class="nx">y</span><span class="o">-</span><span class="nx">o</span><span class="p">.</span><span class="nx">delta</span><span class="p">.</span><span class="nx">y</span><span class="p">)</span><span class="o">*</span><span class="nx">time</span><span class="p">)</span>
+    <span class="nv">o.adjustedX = </span><span class="nx">o</span><span class="p">.</span><span class="nx">adjustedX</span> <span class="o">-</span> <span class="p">((</span><span class="nx">o</span><span class="p">.</span><span class="nx">adjustedX</span><span class="o">-</span><span class="nx">o</span><span class="p">.</span><span class="nx">delta</span><span class="p">.</span><span class="nx">x</span><span class="p">)</span><span class="o">*</span><span class="nx">time</span><span class="p">)</span>
+    <span class="nv">o.adjustedY = </span><span class="nx">o</span><span class="p">.</span><span class="nx">adjustedY</span> <span class="o">-</span> <span class="p">((</span><span class="nx">o</span><span class="p">.</span><span class="nx">adjustedY</span><span class="o">-</span><span class="nx">o</span><span class="p">.</span><span class="nx">delta</span><span class="p">.</span><span class="nx">y</span><span class="p">)</span><span class="o">*</span><span class="nx">time</span><span class="p">)</span>
+    
+  <span class="nx">generatePoints</span><span class="o">:</span><span class="nf">(xDiff,yDiff,xMin,yMin,o1,o2)-&gt;</span>
+    <span class="nv">min = </span><span class="mi">0</span>
+    <span class="nv">max = </span><span class="nx">o1</span><span class="p">.</span><span class="nx">time</span><span class="o">-</span><span class="mi">1</span>
+    <span class="nv">mid = </span><span class="mi">0</span>
+    <span class="nv">midValue = </span><span class="kc">true</span>
+    <span class="nv">time = </span><span class="nx">o1</span><span class="p">.</span><span class="nx">time</span>
+    <span class="nv">isColliding = </span><span class="kc">true</span>
+    <span class="k">while</span> <span class="nx">min</span> <span class="o">&lt;=</span> <span class="nx">max</span>
+      <span class="nv">mid = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">((</span><span class="nx">min</span><span class="o">+</span><span class="nx">max</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+      <span class="nv">moment = </span><span class="nx">mid</span><span class="err">/time</span>
+      <span class="nv">isColliding = </span><span class="nx">@collidesAtTime</span><span class="p">(</span><span class="nx">xDiff</span><span class="p">,</span><span class="nx">yDiff</span><span class="p">,</span><span class="nx">xMin</span><span class="p">,</span><span class="nx">yMin</span><span class="p">,</span><span class="nx">o1</span><span class="p">,</span><span class="nx">o2</span><span class="p">,</span><span class="nx">moment</span><span class="p">)</span><span class="c1">#collision at time</span>
+      <span class="k">if</span> <span class="nx">isColliding</span> <span class="o">is</span> <span class="kc">false</span>
+        <span class="nv">min = </span><span class="nx">mid</span> <span class="o">+</span> <span class="mi">1</span>
+      <span class="k">if</span> <span class="nx">isColliding</span> <span class="o">is</span> <span class="kc">true</span>
+        <span class="nv">max = </span><span class="nx">mid</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="nx">isColliding</span> <span class="o">is</span> <span class="kc">true</span> <span class="c1">#find points at mid</span>
+      <span class="nv">o1.collideTime = </span><span class="nx">mid</span>
+      <span class="nx">@drawAtCollide</span><span class="p">(</span><span class="nx">o1</span><span class="p">,</span><span class="nx">mid</span><span class="err">/o1.time+1)</span>
+    <span class="k">else</span> <span class="c1">#find points at mid + 1</span>
+      <span class="nv">o1.collideTime = </span><span class="nx">mid</span> <span class="o">+</span> <span class="mi">1</span>
+      <span class="nx">@drawAtCollide</span><span class="p">(</span><span class="nx">o1</span><span class="p">,(</span><span class="nx">mid</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="nx">o1</span><span class="p">.</span><span class="nx">time</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    
+  <span class="nx">hitsBoundary</span><span class="o">:</span><span class="nf">(sprite)-&gt;</span>
+    <span class="nv">canvas = </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span> <span class="s2">&quot;myCanvas&quot;</span>
+    <span class="k">if</span> <span class="nx">sprite</span> <span class="k">instanceof</span> <span class="nx">Circle</span>
+      <span class="nv">radius = </span><span class="nx">sprite</span><span class="p">.</span><span class="nx">radius</span>
+      <span class="k">if</span> <span class="nx">sprite</span><span class="p">.</span><span class="nx">adjustedX</span> <span class="o">+</span> <span class="nx">radius</span> <span class="o">&gt;=</span> <span class="nx">canvas</span><span class="p">.</span><span class="nx">width</span>
+        <span class="k">return</span> <span class="kc">true</span>
+      <span class="k">if</span> <span class="nx">sprite</span><span class="p">.</span><span class="nx">adjustedX</span> <span class="o">-</span> <span class="nx">radius</span> <span class="o">&lt;=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="kc">true</span>
+      <span class="k">if</span> <span class="nx">sprite</span><span class="p">.</span><span class="nx">adjustedY</span> <span class="o">+</span> <span class="nx">radius</span> <span class="o">&gt;=</span> <span class="nx">canvas</span><span class="p">.</span><span class="nx">height</span>
+        <span class="k">return</span> <span class="kc">true</span>
+      <span class="k">if</span> <span class="nx">sprite</span><span class="p">.</span><span class="nx">adjustedY</span> <span class="o">-</span> <span class="nx">radius</span> <span class="o">&lt;=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="kc">true</span>
+    <span class="k">else</span>
+      <span class="nv">y = </span><span class="nx">sprite</span><span class="p">.</span><span class="nx">adjustedY</span>
+      <span class="nv">x = </span><span class="nx">sprite</span><span class="p">.</span><span class="nx">adjustedX</span>
+      <span class="nv">h = </span><span class="nx">sprite</span><span class="p">.</span><span class="nx">height</span>
+      <span class="nv">w = </span><span class="nx">sprite</span><span class="p">.</span><span class="nx">width</span>
+      <span class="nv">yMin = </span><span class="nx">y</span> <span class="o">-</span> <span class="p">(</span><span class="nx">h</span><span class="err">/2)</span>
+      <span class="nv">yMax = </span><span class="nx">y</span> <span class="o">+</span> <span class="p">(</span><span class="nx">h</span><span class="err">/2)</span>
+      <span class="nv">xMin = </span><span class="nx">x</span> <span class="o">-</span> <span class="p">(</span><span class="nx">w</span><span class="err">/2)</span>
+      <span class="nv">xMax = </span><span class="nx">x</span> <span class="o">+</span> <span class="p">(</span><span class="nx">w</span><span class="err">/2)</span>
+      <span class="k">if</span> <span class="nx">xMin</span> <span class="o">&lt;=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="kc">true</span>
+      <span class="k">else</span> <span class="k">if</span> <span class="nx">xMax</span> <span class="o">&gt;=</span> <span class="nx">canvas</span><span class="p">.</span><span class="nx">width</span>  
+        <span class="k">return</span> <span class="kc">true</span>
+      <span class="k">else</span> <span class="k">if</span> <span class="nx">yMax</span> <span class="o">&gt;=</span> <span class="nx">canvas</span><span class="p">.</span><span class="nx">height</span>
+        <span class="k">return</span> <span class="kc">true</span>
+      <span class="k">else</span> <span class="k">if</span> <span class="nx">yMin</span> <span class="o">&lt;=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="kc">true</span>
+  <span class="nx">runCollisionDetection</span><span class="o">:</span><span class="nf">(sprite) -&gt;</span>
+    <span class="k">for</span> <span class="nx">type</span> <span class="k">in</span> <span class="nx">@typesToTest</span><span class="p">.</span><span class="nx">sprite</span>
+      <span class="k">if</span> <span class="nx">type</span> <span class="o">is</span> <span class="s2">&quot;boundary&quot;</span>
+        <span class="k">if</span> <span class="nx">@hitsBoundary</span><span class="p">(</span><span class="nx">sprite</span><span class="p">)</span> <span class="o">is</span> <span class="kc">true</span>
+          <span class="nx">@collided</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span><span class="nx">o1</span><span class="o">:</span><span class="nx">sprite</span><span class="p">,</span><span class="nx">o2</span><span class="o">:</span><span class="s2">&quot;boundary&quot;</span><span class="p">})</span> 
+    <span class="nv">index = </span><span class="nx">@scene</span><span class="p">.</span><span class="nx">sprites</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">sprite</span><span class="p">)</span>
+    <span class="nv">isCorrectType = </span><span class="kc">false</span>
+    <span class="k">for</span> <span class="nx">object</span> <span class="k">in</span> <span class="nx">@scene</span><span class="p">.</span><span class="nx">sprites</span><span class="c1">#@allSprites</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>for type in @typesToTest.sprite
+if object instanceof Circle
+if object instanceof type for type in @typesToTest.sprite
+console.log object</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="nv">isCorrectType = </span><span class="kc">true</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>if type is "boundary"
+ isCorrectType = false
+else if type is "all" or object instanceof type
+ isCorrectType = true</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="k">if</span> <span class="nx">isCorrectType</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">index</span> <span class="o">isnt</span> <span class="nx">@scene</span><span class="p">.</span><span class="nx">sprites</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">object</span><span class="p">))</span>
+          <span class="nv">collision = </span><span class="nx">@detectCollisions</span><span class="p">(</span><span class="nx">sprite</span><span class="p">,</span><span class="nx">object</span><span class="p">)</span>
+          <span class="nx">@collided</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span><span class="nx">o1</span><span class="o">:</span><span class="nx">sprite</span><span class="p">,</span><span class="nx">o2</span><span class="o">:</span><span class="nx">object</span><span class="p">})</span> <span class="k">if</span> <span class="nx">collision</span> <span class="o">is</span> <span class="kc">true</span>
+    <span class="k">for</span> <span class="nx">subSprite</span> <span class="k">in</span> <span class="nx">sprite</span><span class="p">.</span><span class="nx">subSprites</span>
+      <span class="nx">@runCollisionDetection</span><span class="p">(</span><span class="nx">subSprite</span><span class="p">)</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

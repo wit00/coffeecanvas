@@ -1,0 +1,29 @@
+<!DOCTYPE html>  <html> <head>   <title>vector.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               vector.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>                            </td>             <td class="code">               <div class="highlight"><pre><span class="nx">namespace</span> <span class="s1">&#39;Vector&#39;</span><span class="p">,</span> <span class="nf">(exports) -&gt;</span>
+  <span class="nv">exports.add = </span><span class="nf">(vec1x,vec1y,vec2x,vec2y)-&gt;</span>
+    <span class="nv">vec = </span>
+      <span class="nx">x</span><span class="o">:</span><span class="nx">vec1x</span><span class="o">+</span><span class="nx">vec2x</span>
+      <span class="nx">y</span><span class="o">:</span><span class="nx">vec1y</span><span class="o">+</span><span class="nx">vec2y</span>
+    <span class="k">return</span> <span class="nx">vec</span>  
+  <span class="nv">exports.subtract = </span><span class="nf">(vec1x,vec1y,vec2x,vec2y)-&gt;</span>
+    <span class="nv">vec = </span>
+      <span class="nx">x</span><span class="o">:</span><span class="nx">vec1x</span><span class="o">-</span><span class="nx">vec2x</span>
+      <span class="nx">y</span><span class="o">:</span><span class="nx">vec1y</span><span class="o">-</span><span class="nx">vec2y</span>
+    <span class="k">return</span> <span class="nx">vec</span>
+  <span class="nv">exports.dotProduct = </span><span class="nf">(vec1x,vec1y,vec2x,vec2y) -&gt;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="nx">vec1x</span><span class="o">*</span><span class="nx">vec2x</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="nx">vec1y</span><span class="o">*</span><span class="nx">vec2y</span><span class="p">)</span>
+  <span class="nv">exports.length = </span><span class="nf">(vecX,vecY) -&gt;</span>
+    <span class="k">return</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">sqrt</span><span class="p">((</span><span class="nx">vecX</span><span class="o">*</span><span class="nx">vecX</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="nx">vecY</span><span class="o">*</span><span class="nx">vecY</span><span class="p">))</span>
+  <span class="nv">exports.normalize = </span><span class="nf">(vecX,vecY) -&gt;</span>
+    <span class="nv">length = </span><span class="nx">Vector</span><span class="p">.</span><span class="nx">length</span><span class="p">(</span><span class="nx">vecX</span><span class="p">,</span><span class="nx">vecY</span><span class="p">)</span>
+    <span class="nv">vec = </span>
+      <span class="nx">x</span><span class="o">:</span><span class="nx">vecX</span><span class="err">/length</span>
+      <span class="nx">y</span><span class="o">:</span><span class="nx">vecY</span><span class="err">/length</span>
+    <span class="k">return</span> <span class="nx">vec</span>
+  <span class="nv">exports.scale = </span><span class="nf">(scalar,vecX,vecY) -&gt;</span>
+    <span class="nv">vec = </span>
+      <span class="nx">x</span><span class="o">:</span><span class="nx">scalar</span><span class="o">*</span><span class="nx">vecX</span>
+      <span class="nx">y</span><span class="o">:</span><span class="nx">scalar</span><span class="o">*</span><span class="nx">vecY</span>
+    <span class="k">return</span> <span class="nx">vec</span>
+      
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

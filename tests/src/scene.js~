@@ -1,0 +1,139 @@
+(function() {
+  var Scene, root,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __slice = Array.prototype.slice;
+
+  Scene = (function() {
+
+    function Scene(canvas, canvasWidth) {
+      this.clear = __bind(this.clear, this);      
+      this.canvas = document.getElementById("myCanvas");
+      this.canvasWidth = this.canvas.width;
+      this.canvasHeight = this.canvas.height;
+      this.context = this.canvas.getContext("2d");
+      this.sprites = [];
+    }
+
+    Scene.prototype.draw = function() {
+      var sprite, _i, _len, _ref, _results;
+      _ref = this.sprites;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        sprite = _ref[_i];
+        _results.push(sprite.runDrawing(this.context));
+      }
+      return _results;
+    };
+
+    Scene.prototype.update = function() {
+      var sprite, _i, _len, _ref, _results;
+      _ref = this.sprites;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        sprite = _ref[_i];
+        _results.push(sprite.update());
+      }
+      return _results;
+    };
+
+    Scene.prototype.addSprite = function(sprite) {
+      return this.sprites.push(sprite);
+    };
+
+    Scene.prototype.addSprites = function() {
+      var sprite, sprites, _i, _len, _results;
+      sprites = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      _results = [];
+      for (_i = 0, _len = sprites.length; _i < _len; _i++) {
+        sprite = sprites[_i];
+        _results.push(this.sprites.push(sprite));
+      }
+      return _results;
+    };
+
+    Scene.prototype.removeSprite = function(sprite) {
+      var index;
+      index = this.sprites.indexOf(sprite);
+      this.sprites.splice(index, 1);
+      return collisions.unObserve(sprite);
+    };
+
+    Scene.prototype.removeChild = function(parentSprite, childSprite) {
+      var index;
+      index = parentSprite.subSprites.indexOf(childSprite);
+      parentSprite.subSprites.splice(index, 1);
+      return collisions.unObserve(childSprite);
+    };
+
+    Scene.prototype.clone = function(obj) {
+      var flags, key, newInstance;
+      if (!(obj != null) || typeof obj !== 'object') return obj;
+      if (obj instanceof Date) return new Date(obj.getTime());
+      if (obj instanceof RegExp) {
+        flags = '';
+        if (obj.global != null) flags += 'g';
+        if (obj.ignoreCase != null) flags += 'i';
+        if (obj.multiline != null) flags += 'm';
+        if (obj.sticky != null) flags += 'y';
+        return new RegExp(obj.source, flags);
+      }
+      newInstance = new obj.constructor();
+      for (key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          newInstance[key] = this.clone(obj[key]);
+          newInstance[key] = obj[key];
+        }
+      }
+      return newInstance;
+    };
+
+    Scene.prototype.makeChild = function(parentSprite, childSprite) {
+      parentSprite.addChild(childSprite);
+      childSprite.adjustedX = childSprite.x + parentSprite.adjustedX;
+      return childSprite.adjustedY = childSprite.y + parentSprite.adjustedY;
+    };
+
+    Scene.prototype.clear = function() {
+      return this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+    };
+
+    Scene.prototype.attachLinearGradientFill = function(sprite, gradient) {
+      var a, grad, _i, _len, _ref;
+      grad = this.context.createLinearGradient(gradient.x1, gradient.y1, gradient.x2, gradient.y2);
+      _ref = gradient.colorStops;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        a = _ref[_i];
+        grad.addColorStop(a[1], a[0]);
+      }
+      sprite.fill = grad;
+      return sprite.createStamp(sprite.stampContext);
+    };
+
+    Scene.prototype.attachRadialGradientFill = function(sprite, gradient) {
+      var a, grad, _i, _len, _ref;
+      grad = this.context.createRadialGradient(gradient.x1, gradient.y1, gradient.r1, gradient.x2, gradient.y2, gradient.r2);
+      _ref = gradient.colorStops;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        a = _ref[_i];
+        grad.addColorStop(a[1], a[0]);
+      }
+      sprite.fill = grad;
+      return sprite.createStamp(sprite.stampContext);
+    };
+
+    Scene.prototype.attachPattern = function(sprite, pattern) {
+      var pat;
+      pat = this.context.createPattern(pattern.imgId, pattern.repeat);
+      sprite.fill = pat;
+      return sprite.createStamp(sprite.stampContext);
+    };
+
+    return Scene;
+
+  })();
+
+  //root = typeof exports !== "undefined" && exports !== null ? exports : window;
+
+  //root.Scene = Scene;
+
+}).call(this);

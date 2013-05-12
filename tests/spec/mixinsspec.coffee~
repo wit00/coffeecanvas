@@ -1,0 +1,7 @@
+describe 'mixins', ->
+  it 'Mixins add functions to sprites', ->
+      s = new Sprite
+      test =
+        moo:()-> console.log "moo"
+      include(test,Sprite)
+      s.moo()

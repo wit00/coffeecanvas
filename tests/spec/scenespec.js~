@@ -1,0 +1,95 @@
+(function() {
+
+  describe('Scene', function() {
+    beforeEach(function() {
+      var canvas;
+      canvas = document.createElement('canvas');
+      canvas.width = 10;
+      canvas.height = 10;
+      canvas.id = "myCanvas";
+      return document.body.appendChild(canvas);
+    });
+    describe('Constructor', function() {
+      it('Scene is defined', function() {
+        var scene;
+        scene = new Scene();
+        return expect(scene).toBeDefined();
+      });
+      return it('Sprites array is created in constructor', function() {
+        var scene;
+        scene = new Scene();
+        expect(scene.sprites).toBeDefined();
+        return scene.sprites.length = 0;
+      });
+    });
+    return describe('Update, Draw, and Sprites Array Functions', function() {
+      it('Update function runs with 0 sprites', function() {
+        var scene;
+        scene = new Scene();
+        return scene.update();
+      });
+      it('Draw function runs with 0 sprites', function() {
+        var scene;
+        scene = new Scene();
+        return scene.draw();
+      });
+      it('Add sprite to Sprites Array', function() {
+        var scene, sprite;
+        scene = new Scene();
+        sprite = new Sprite();
+        scene.addSprite(sprite);
+        return expect(scene.sprites.length).toBe(1);
+      });
+      it('Update function runs with 1 sprite', function() {
+        var matrix, scene;
+        scene = new Scene();
+        scene.addSprite(new Sprite());
+        scene.update();
+        return matrix = new Matrix();
+      });
+      /*  
+      it 'Draw function runs with 1 sprite', ->
+        scene = new Scene()
+        scene.addSprite(new Sprite())
+        scene.draw()
+      */
+      return it('Update function runs with 3 sprites', function() {
+        var scene;
+        scene = new Scene();
+        scene.addSprite(new Sprite());
+        scene.addSprite(new Sprite());
+        scene.addSprite(new Sprite());
+        return scene.update();
+      });
+      /*  
+      it 'Draw function runs with 3 sprites', ->
+        scene = new Scene()
+        scene.addSprite(new Sprite())
+        scene.addSprite(new Sprite())
+        scene.addSprite(new Sprite())
+        scene.draw()
+      */
+    });
+  });
+
+  describe('Sprite', function() {
+    return describe('Constructor', function() {
+      it('Sprite is defined', function() {
+        var matrix, sprite, square;
+        matrix = new Matrix();
+        square = new Square();
+        sprite = new Sprite();
+        return expect(sprite).toBeDefined();
+      });
+      it('Rectangle is defined', function() {
+        var rec;
+        return rec = new Rectangle();
+      });
+      return it('Scene is defined', function() {
+        var scene;
+        return scene = new Scene();
+      });
+    });
+  });
+
+}).call(this);

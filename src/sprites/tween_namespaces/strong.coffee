@@ -1,0 +1,12 @@
+namespace 'Strong', (exports) ->
+  exports.easeIn = (elapsed,change,duration,from)->
+    (change)*(elapsed/=duration)*elapsed*elapsed*elapsed*elapsed*elapsed + from
+  exports.easeOut = (elapsed,change,duration,from) ->
+    -change*((elapsed = elapsed/duration-1)*elapsed*elapsed*elapsed-1) + from
+  exports.easeInOut = (elapsed,change,duration,from)->
+    if((elapsed/=duration/2) < 1)
+      return (change/2)*elapsed*elapsed*elapsed*elapsed*elapsed + from 
+    else
+      #return (-change/2)*(elapsed-=2)*elapsed*elapsed*elapsed*elapsed*elapsed + from
+      return (-change/2)*((elapsed -= 2)*elapsed*elapsed*elapsed-2) + from
+      

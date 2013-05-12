@@ -1,0 +1,70 @@
+describe 'Sprite', ->
+  sprite = null
+  beforeEach ->
+    sprite = new Sprite()
+  describe 'Constructor', ->
+    it 'Sprite is defined', ->
+      expect(sprite).toBeDefined()
+    it 'Sprites can set Arguments in the Constructor', ->
+      sprite = new Sprite(x:20)
+      expect(sprite.x).toBe(20)
+    it 'Sprite Arguments are defined', ->
+      expect(sprite.x and sprite.y and sprite.angularVelocity and sprite.rotation and sprite.width and sprite.subSprites and sprite.lineWidth and sprite.lineCap and sprite.lineJoin and sprite.miterLimit and sprite.events and sprite.receivedEvents and sprite.toDeleteEvents).toBeDefined()
+    it 'subSprites Array defined and empty',->
+      expect(sprite.subSprites).toBeDefined()
+      expect(sprite.subSprites.length).toBe(0)
+  describe 'Methods',->
+    it 'Sprites translate', ->
+      sprite.x = 0
+      sprite.y = 0
+      sprite.translate(10,10)
+      expect(sprite.x).toBe(10)
+      expect(sprite.y).toBe(10)
+    it 'Sprite translates with negative directions',->
+      sprite.translate(-10,-100)
+      expect(sprite.x).toBe(-10)
+      expect(sprite.y).toBe(-100)
+    it 'Sprite can add animations to its animations array',->
+      expect(sprite.animations).toBeDefined()
+      expect(sprite.animations.length).toBe(0)
+      sprite.addAnimation(new Tween)
+      expect(sprite.animations.length).toBe(1)
+    it 'Sprite can delete animations from its animations array',->
+      expect(sprite.animations).toBeDefined()
+      expect(sprite.animations.length).toBe(0)
+      t = new Tween
+      sprite.addAnimation(t)
+      expect(sprite.animations.length).toBe(1)
+      sprite.deleteAnimation(t)
+      expect(sprite.animations.length).toBe(0)
+    it 'Sprites run events they have registered',->
+      event = 
+        code:1
+        action:"keys"
+      sprite.events[0] = event
+      expect(sprite.receivedEvents[event.keyCode]).not.toBeDefined()
+      e =
+        keyCode:1
+        type:"keys"
+      sprite.receiveEvent(e)
+      expect(sprite.receivedEvents[e.keyCode]).toBe(true)
+    it 'Sprites do not run events they have not registered',->
+      event = 
+        code:1
+        action:"keys"
+      sprite.events[0] = event
+      expect(sprite.receivedEvents[event.keyCode]).not.toBeDefined()
+      e =
+        keyCode:2
+        type:"keys"
+      sprite.receiveEvent(e)
+      expect(sprite.receivedEvents[e.keyCode]).not.toBeDefined()
+    it 'When a sprite runs its events, it deletes any to be deleted animations',->
+      event = {}
+      sprite.animations[0] = event
+      sprite.toDeleteEvents.push(event)
+      expect(sprite.events.length).toBe(1)
+      sprite.runEvents()
+      expect(sprite.events.length).toBe(0)
+      
+      

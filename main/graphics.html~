@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <meta charset="UTF-8">
+  <head>
+    <title>CoffeeShop</title>
+  </head>
+  <body>
+    <h1>My CoffeeShop Application</h1>
+    <div id="hidden" style="visibility:hidden; width:1px; height:1px; overflow:hidden">
+     <!--Bitmap Images-->
+    </div>
+    <div style="position: relative;">
+      <canvas id="myCanvas" width="400" height="400" style="border:1px solid #c3c3c3;">
+      Your browser does not support the canvas element.
+      </canvas>
+      <script type="text/javascript" src="project.js"></script> 
+    </div>
+    <p>This is sample text for your CoffeeShop Application. Edit the html file in this directory to change this text.</p>
+    <p>If your Coffeeshop code has not produces an image on the canvas, make sure to run compile.sh on this directory to compile your CoffeeShop code. If you have compiled the code and still no image appears, open the browser's console to check for errors.</p>
+  </body>
+</html>
+
+

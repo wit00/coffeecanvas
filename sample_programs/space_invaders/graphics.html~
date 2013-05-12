@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <meta charset="UTF-8">
+  <head>
+    <title>Graphics API</title>
+  </head>
+  <body>
+    <!--Bitmap Images-->
+    <div id="hidden" style="visibility:hidden; width:1px; height:1px; overflow:hidden">
+    </div>
+    <div style="position: relative;">
+      <canvas id="myCanvas" width="400" height="400" style="border:1px solid #c3c3c3;">
+      Your browser does not support the canvas element.
+      </canvas>
+      <script type="text/javascript" src="project.js"></script> 
+    </div>
+  </body>
+</html>
+
+
